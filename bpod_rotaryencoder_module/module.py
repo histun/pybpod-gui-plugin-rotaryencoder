@@ -125,9 +125,6 @@ class RotaryEncoderModule(object):
 		self.arcom.write_array([ord(self.COM_ENABLETHRESHOLDS), bits])
 
 
-	@property
-	def is_open(self): return self.arcom.is_open
-
 
 
 if __name__=='__main__':
@@ -139,13 +136,12 @@ if __name__=='__main__':
 	
 	#m.stop_logging()
 
-	"""
 	m.enable_stream()
 	
 	
 	
 	count = 0
-	while count<10:
+	while count<100 or True:
 		data = m.read_stream()
 		if len(data)==0: continue
 
@@ -153,7 +149,7 @@ if __name__=='__main__':
 		count += 1
 
 	m.disable_stream()
-	"""
+	
 	print('set', m.set_position(179))
 	m.set_zero_position()
 

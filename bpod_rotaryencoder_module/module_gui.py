@@ -36,7 +36,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			('_port','_connect_btn'),
 			('_events', '_stream','_zero_btn',),
 			('_thresh_lower', '_thresh_upper', '_reset_threshs'),			
-			
+			'=',
 			'_graph',
 			'_clear_btn'
 		]
@@ -104,7 +104,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 	def __stream_changed_evt(self):
 		if self._stream.value:
 			self.enable_stream()
-			self._timer.start(1000)
+			self._timer.start(100)
 		else:
 			self.disable_stream()
 			self._timer.stop()
