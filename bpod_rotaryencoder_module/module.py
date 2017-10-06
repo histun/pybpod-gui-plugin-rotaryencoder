@@ -2,19 +2,19 @@ from pybpodapi.bpod.com.arcom import ArCOM, ArduinoTypes
 
 class RotaryEncoderModule(object):
 
-	COM_HANDSHAKE 		= 'C'
-	COM_TOGGLEEVTTRANSM = 'V'
-	COM_TOGGLESTREAM 	= 'S'
-	COM_STARTLOGGING 	= 'L'
-	COM_STOPLOGGING 	= 'F'
-	COM_GETLOGDATA 		= 'R'
-	COM_GETCURRENTPOS  	= 'Q'
-	COM_SETZEROPOS 		= 'Z'
-	COM_SETPOS 			= 'P'
+	COM_HANDSHAKE 		 = 'C'
+	COM_TOGGLEEVTTRANSM  = 'V'
+	COM_TOGGLESTREAM 	 = 'S'
+	COM_STARTLOGGING 	 = 'L'
+	COM_STOPLOGGING 	 = 'F'
+	COM_GETLOGDATA 		 = 'R'
+	COM_GETCURRENTPOS  	 = 'Q'
+	COM_SETZEROPOS 		 = 'Z'
+	COM_SETPOS 			 = 'P'
 	COM_ENABLETHRESHOLDS = ';'
-	COM_SETPREFIX	 	= 'I'
-	COM_SETTHRESHOLDS 	= 'T'
-	COM_SETWRAPPOINT 	= 'W'
+	COM_SETPREFIX	 	 = 'I'
+	COM_SETTHRESHOLDS 	 = 'T'
+	COM_SETWRAPPOINT 	 = 'W'
 
 
 	def __init__(self, serialport=None):
