@@ -24,10 +24,10 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('../../bpod_rotaryencoder_module'))
+sys.path.insert(0, os.path.abspath('../../pybpod_rotaryencoder_module'))
 sys.path.insert(0, os.path.abspath('../../'))
 
-import bpod_rotaryencoder_module
+import pybpod_rotaryencoder_module
 
 # adds support for Markwdown
 from recommonmark.parser import CommonMarkParser
