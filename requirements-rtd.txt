@@ -1,6 +1,7 @@
 # 3rd party dependencies
 pyserial>=3.1.1
 numpy
+dateutil
 
 # rtd dependencies
 sphinx>=1.5.5
