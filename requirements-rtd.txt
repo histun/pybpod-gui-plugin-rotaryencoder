@@ -11,4 +11,5 @@ recommonmark
 git+https://github.com/UmSenhorQualquer/pysettings.git
 https://bitbucket.org/fchampalimaud/logging-bootstrap/get/master.zip
 https://github.com/UmSenhorQualquer/pyforms/archive/master.zip
+https://bitbucket.org/fchampalimaud/pybpod-api/get/master.zip
 git+https://UmSenhorQualquer@bitbucket.org/fchampalimaud/logging-bootstrap.git
