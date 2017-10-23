@@ -2,7 +2,7 @@ import pyforms, sip
 from pyforms import BaseWidget
 from pyforms.Controls import ControlText, ControlCheckBox, ControlNumber, ControlButton
 from pyforms.Controls import ControlMatplotlib
-from bpod_rotaryencoder_module.module import RotaryEncoderModule
+from bpod_rotaryencoder_module.module_api import RotaryEncoderModule
 
 from pysettings import conf
 if conf.PYFORMS_USE_QT5:
