@@ -137,3 +137,22 @@ Configure the using the GUI
 
 .. image:: /_static/rotary-encoder-module.png
    :scale: 100 %
+
+
+Add the Rotary Plugin to the PyBpod-GUI
+================================================
+
+
+In the GUI settings add the next configuration to the list of plugins
+
+.. code:: python
+
+	GENERIC_EDITOR_PLUGINS_LIST = [
+		...
+		'pybpod_rotaryencoder_module',
+	]
+
+After open the PyBpod-GUI a access the plugin in the Tools menu.
+
+.. image:: /_static/pybpod-gui-menu.png
+   :scale: 100 %

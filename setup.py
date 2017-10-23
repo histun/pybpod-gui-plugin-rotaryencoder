@@ -15,4 +15,6 @@ setup(
 
 	include_package_data=True,
 	packages=find_packages(),
+
+	package_data={'pybpod_rotaryencoder_module': ['resources/*.*',]}
 )

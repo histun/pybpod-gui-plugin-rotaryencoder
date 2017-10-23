@@ -7,15 +7,18 @@ from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
 from pysettings import conf
 if conf.PYFORMS_USE_QT5:
 	from PyQt5.QtCore import QTimer, QEventLoop
+	from PyQt5.QtWidgets import  QMessageBox
 else:
 	from PyQt4.QtCore import QTimer, QEventLoop
+	from PyQt4.QtGui import  QMessageBox
+	
 
 class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 	TITLE = 'Rotary encoder module'
 
-	def __init__(self):
-		BaseWidget.__init__(self, self.TITLE)
+	def __init__(self, parent_win=None):
+		BaseWidget.__init__(self, self.TITLE, parent_win=parent_win)
 		RotaryEncoderModule.__init__(self)
 
 		self._port 			= ControlText('Serial port', '/dev/ttyACM1')
@@ -129,14 +132,20 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			self._thresh_lower.enabled = False
 			self._thresh_upper.enabled = False
 		else:
-			self.open(self._port.value)
-			self._connect_btn.label = 'Connected'
-			self._stream.enabled = True
-			self._events.enabled = True
-			self._zero_btn.enabled = True
-			self._reset_threshs.enabled = True
-			self._thresh_lower.enabled = True
-			self._thresh_upper.enabled = True
+			try:
+				self.open(self._port.value)
+				
+				self._connect_btn.label = 'Connected'
+				self._stream.enabled = True
+				self._events.enabled = True
+				self._zero_btn.enabled = True
+				self._reset_threshs.enabled = True
+				self._thresh_lower.enabled = True
+				self._thresh_upper.enabled = True
+			except  Exception as err:
+				QMessageBox.critical(self, "Error", str(err))
+				self._connect_btn.checked = False
+
 
 
 
