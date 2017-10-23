@@ -6,4 +6,4 @@ __maintainer__ 	= ['Ricardo Ribeiro']
 __email__ 		= ['ricardojvr@gmail.com']
 __status__ 		= "Development"
 
-from bpod_rotaryencoder_module.module import RotaryEncoder as BpodModule
+from pybpod_rotaryencoder_module.module import RotaryEncoder as BpodModule

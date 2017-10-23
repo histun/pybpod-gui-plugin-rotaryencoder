@@ -5,7 +5,7 @@
 .. module:: pybpodapi
    :synopsis: top-level module
 
-.. autoclass:: bpod_rotaryencoder_module.module.RotaryEncoder
+.. autoclass:: pybpod_rotaryencoder_module.module.RotaryEncoder
     :members:
     :private-members:
     :show-inheritance:

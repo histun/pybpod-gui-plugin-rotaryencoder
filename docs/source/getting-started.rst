@@ -59,7 +59,7 @@ This module can be connected and disconnected from the Pybpod-api library. For t
 .. code:: python
 
 	PYBPOD_API_MODULES = [
-		'bpod_rotaryencoder_module'
+		'pybpod_rotaryencoder_module'
 	]
 
 .. note::
@@ -96,7 +96,7 @@ Access the rotary encoder module directly from the USB port
 
 .. code:: python
 
-	from bpod_rotaryencoder_module.module_api import RotaryEncoderModule
+	from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
 
 	m = RotaryEncoderModule('/dev/ttyACM1')
 
@@ -129,7 +129,7 @@ Configure the using the GUI
 .. code:: python
 
 	import pyforms
-	from bpod_rotaryencoder_module.module_gui import RotaryEncoderModuleGUI
+	from pybpod_rotaryencoder_module.module_gui import RotaryEncoderModuleGUI
 
 
 	pyforms.start_app( RotaryEncoderModuleGUI, geometry=(0,0,600,500) )

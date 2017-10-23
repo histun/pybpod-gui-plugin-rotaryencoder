@@ -3,3 +3,6 @@ bpod_rotaryencoder_module/__pycache__/
 
 *.pyc
 
+docs/build/html/
+
+docs/build/

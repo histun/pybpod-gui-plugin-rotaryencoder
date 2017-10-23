@@ -5,7 +5,7 @@
 .. module:: pybpodapi
    :synopsis: top-level module
 
-.. autoclass:: bpod_rotaryencoder_module.module_api.RotaryEncoderModule
+.. autoclass:: pybpod_rotaryencoder_module.module_api.RotaryEncoderModule
     :members:
     :private-members:
 
@@ -19,7 +19,7 @@ Usage example
 .. code:: python
 
 	
-	from bpod_rotaryencoder_module.module_api import RotaryEncoderModule
+	from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
 
 	m = RotaryEncoderModule('/dev/ttyACM1')
 
