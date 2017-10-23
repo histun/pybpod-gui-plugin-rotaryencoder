@@ -51,7 +51,7 @@ After enter in the project directory using the terminal and run the next command
 
 
 
-Use the module in the `pybpod-api <https://bitbucket.org/fchampalimaud/pybpod-api>`_ library
+Use the module in the `pybpod-api <http://pybpod-api.readthedocs.io>`_ library
 ==============================================================================================
 
 This module can be connected and disconnected from the Pybpod-api library. For this go to your user_settings.py file and add the next configuration.
