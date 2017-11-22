@@ -1,4 +1,4 @@
-from pybpodapi.bpod.com.arcom import ArCOM, ArduinoTypes
+from pybpodapi.com.arcom import ArCOM, ArduinoTypes
 
 class RotaryEncoderModule(object):
 
