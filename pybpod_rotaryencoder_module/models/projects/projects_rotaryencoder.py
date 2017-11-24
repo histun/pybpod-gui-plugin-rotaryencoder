@@ -27,7 +27,7 @@ class ProjectsRotaryEncoder(object):
 		if not hasattr(self, 'rotaryencoder_plugin'):
 			self.rotaryencoder_plugin = RotaryEncoderModuleGUI(self)
 			self.rotaryencoder_plugin.show()
-			self.rotaryencoder_plugin.subwindow.resize(*conf.ROTARYENCODER_PLUGIN_WINDOW_SIZE)			
+			self.rotaryencoder_plugin.resize(*conf.ROTARYENCODER_PLUGIN_WINDOW_SIZE)			
 		else:
 			self.rotaryencoder_plugin.show()
 
