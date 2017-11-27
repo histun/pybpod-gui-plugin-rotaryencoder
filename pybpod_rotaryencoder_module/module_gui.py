@@ -1,10 +1,11 @@
-import pyforms, sip
+import pyforms, sip, sys
 from pyforms import BaseWidget
 from pyforms.Controls import ControlText, ControlCheckBox, ControlNumber, ControlButton
 from pyforms.Controls import ControlMatplotlib
 from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
 
 from pysettings import conf
+
 if conf.PYFORMS_USE_QT5:
 	from PyQt5.QtCore import QTimer, QEventLoop
 	from PyQt5.QtWidgets import  QMessageBox
@@ -26,7 +27,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 		self._events 		= ControlCheckBox('Enable events')
 		self._stream 		= ControlCheckBox('Stream data')
+		self._stream_file   = ControlCheckBox('Stream to file')
 		self._zero_btn 		= ControlButton('Reset position')
+		self._start_reading = ControlButton('Start Reading')
 		self._reset_threshs = ControlButton('Reset thresholds')
 		self._thresh_lower 	= ControlNumber('Lower threshold (deg)', 0, -360, 360)
 		self._thresh_upper 	= ControlNumber('Upper threshold (deg)', 0, -360, 360)
@@ -37,7 +40,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 		self.formset = [
 			('_port','_connect_btn'),
-			('_events', '_stream','_zero_btn',),
+			('_events', '_stream', '_stream_file', '_start_reading', '_zero_btn',),
 			('_thresh_lower', '_thresh_upper', '_reset_threshs'),			
 			'=',
 			'_graph',
@@ -53,11 +56,13 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 		self._connect_btn.value = self.__toggle_connection_evt
 		self._stream.changed_event = self.__stream_changed_evt
+		self._stream_file.changed_event = self.__stream_file_changed_evt
 		self._events.changed_event = self.__events_changed_evt
 		self._thresh_upper.changed_event = self.__thresh_evt
 		self._thresh_lower.changed_event = self.__thresh_evt
 		self._reset_threshs.value = self.__reset_thresholds_evt
 		self._zero_btn.value = self.__zero_btn_evt
+		self._start_reading.value = self.__start_reading_evt
 		self._graph.on_draw = self.__on_draw_evt
 		self._clear_btn.value = self.__clear_btn_evt
 
@@ -65,7 +70,23 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self.history_y = []
 
 		self._timer = QTimer()
-		self._timer.timeout.connect(self.__update_graph)
+		self._timer.timeout.connect(self.__update_readings)
+
+		#self._timer.timeout.connect(self.__update_graph)
+
+	def __stream_file_changed_evt(self):
+		print('STREAM FILE TOGGLED',self._stream_file.value)
+
+	def __start_reading_evt(self):
+		if self._timer.isActive():
+			print('TIMER ACTIVE... stoping')
+			self._start_reading.label = 'Start Reading'
+			self._timer.stop()
+		else:
+			self._start_reading.label = 'Stop Reading'
+			self._timer.start(200)
+			print('TIMER INACTIVE... starting')
+		
 
 	def __clear_btn_evt(self):
 		self.history_x = []
@@ -74,8 +95,8 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 	def __on_draw_evt(self, figure):
 		axes = figure.add_subplot(111)
-		axes.clear();
-		axes.plot(self.history_x, self.history_y) 
+		axes.clear()
+		axes.plot(self.history_x, self.history_y)
 
 		if len(self.history_x)>=2:
 			x_range = [self.history_x[0],self.history_x[-1]]
@@ -85,12 +106,22 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self._graph.repaint()
 		#print(self.history_x, self.history_y)
 
-	def __update_graph(self):
-		for data in self.read_stream():
+	def __update_graph(self,readings):
+		for data in readings:
 			self.history_x.append(data[0])
 			self.history_y.append(data[1])
-
 		self._graph.draw()
+		
+	def __update_readings(self):
+		#data = self.read_stream()
+		data = []
+		if self._stream.value:
+			self.__update_graph(data)
+		if self._stream_file.value:
+			self.__write_to_file(data)
+
+	def __write_to_file(self,readings):
+		print('WRITING TO FILE')
 
 	def __zero_btn_evt(self): 
 		self.set_zero_position()
@@ -145,8 +176,6 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			except  Exception as err:
 				QMessageBox.critical(self, "Error", str(err))
 				self._connect_btn.checked = False
-
-
 
 
 if __name__=='__main__':
