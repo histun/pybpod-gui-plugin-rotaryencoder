@@ -1,17 +1,17 @@
 import pyforms, sip, sys
 from pyforms import BaseWidget
-from pyforms.Controls import ControlText, ControlCheckBox, ControlNumber, ControlButton
+from pyforms.Controls import ControlText, ControlCheckBox, ControlNumber, ControlButton, ControlFile
 from pyforms.Controls import ControlMatplotlib
 from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
-
+from sca.formats import csv
 from pysettings import conf
 
 if conf.PYFORMS_USE_QT5:
 	from PyQt5.QtCore import QTimer, QEventLoop
-	from PyQt5.QtWidgets import  QMessageBox
+	from PyQt5.QtWidgets import  QMessageBox, QFileDialog
 else:
 	from PyQt4.QtCore import QTimer, QEventLoop
-	from PyQt4.QtGui import  QMessageBox
+	from PyQt4.QtGui import  QMessageBox, QFileDialog
 	
 
 class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
@@ -24,6 +24,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 		self._port 			= ControlText('Serial port', '/dev/ttyACM1')
 		self._connect_btn   = ControlButton('Connect', checkable=True)
+
+		self._filename 		= ControlText('Stream Filename', '')
+		self._saveas_btn   = ControlButton('Save As...')
 
 		self._events 		= ControlCheckBox('Enable events')
 		self._stream 		= ControlCheckBox('Stream data')
@@ -40,6 +43,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 		self.formset = [
 			('_port','_connect_btn'),
+			('_filename','_saveas_btn'),
 			('_events', '_stream', '_stream_file', '_start_reading', '_zero_btn',),
 			('_thresh_lower', '_thresh_upper', '_reset_threshs'),			
 			'=',
@@ -48,6 +52,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		]
 
 		self._stream.enabled = False
+		self._stream_file.enabled = False
 		self._events.enabled = False
 		self._zero_btn.enabled = False
 		self._reset_threshs.enabled = False
@@ -55,6 +60,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self._thresh_upper.enabled = False
 
 		self._connect_btn.value = self.__toggle_connection_evt
+		self._saveas_btn.value = self.__prompt_savig_evt
 		self._stream.changed_event = self.__stream_changed_evt
 		self._stream_file.changed_event = self.__stream_file_changed_evt
 		self._events.changed_event = self.__events_changed_evt
@@ -71,11 +77,25 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 		self._timer = QTimer()
 		self._timer.timeout.connect(self.__update_readings)
+		
+	def __prompt_savig_evt(self):
+		self._filename.value, _ = QFileDialog.getSaveFileName()
+		if self._filename.value:
+			self._stream_file.enabled = True
+		else:
+			self._stream_file.value = False
+			self._stream_file.enabled = False
 
-		#self._timer.timeout.connect(self.__update_graph)
 
 	def __stream_file_changed_evt(self):
-		print('STREAM FILE TOGGLED',self._stream_file.value)
+		if self._stream_file.value == True:
+			print('opening csv writer')
+			self._csvfile    = open(self._filename.value, 'w')
+			self._csvwriter = csv.writer(
+				self._csvfile,
+				def_text='This file has all the rotary encoder data recorded during a PyBpod session.',
+				columns_headers=['EVT_TIME', 'VALUE']) # Check if we need something else after
+		
 
 	def __start_reading_evt(self):
 		if self._timer.isActive():
@@ -83,8 +103,10 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			self._start_reading.label = 'Start Reading'
 			self._timer.stop()
 		else:
+			self.history_x = []
+			self.history_y = []
 			self._start_reading.label = 'Stop Reading'
-			self._timer.start(200)
+			self._timer.start(30)
 			print('TIMER INACTIVE... starting')
 		
 
@@ -96,13 +118,22 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 	def __on_draw_evt(self, figure):
 		axes = figure.add_subplot(111)
 		axes.clear()
-		axes.plot(self.history_x, self.history_y)
-
-		if len(self.history_x)>=2:
-			x_range = [self.history_x[0],self.history_x[-1]]
-			axes.plot(x_range,[self._thresh_upper.value, self._thresh_upper.value], linestyle='dotted', color='red')
-			axes.plot(x_range,[self._thresh_lower.value, self._thresh_lower.value], linestyle='dotted', color='blue')
-
+		totallen = len(self.history_x)
+		if totallen > 200:
+			x = self.history_x[totallen - 201:]
+			y = self.history_y[totallen - 201:]
+			axes.plot(x,y)
+			if len(x)>=2:
+				x_range = [x[0],x[-1]]
+				axes.plot(x_range,[self._thresh_upper.value, self._thresh_upper.value], linestyle='dotted', color='red')
+				axes.plot(x_range,[self._thresh_lower.value, self._thresh_lower.value], linestyle='dotted', color='blue')
+		else:
+			axes.plot(self.history_x, self.history_y)
+			if len(self.history_x)>=2:
+				x_range = [self.history_x[0],self.history_x[-1]]
+				axes.plot(x_range,[self._thresh_upper.value, self._thresh_upper.value], linestyle='dotted', color='red')
+				axes.plot(x_range,[self._thresh_lower.value, self._thresh_lower.value], linestyle='dotted', color='blue')
+		
 		self._graph.repaint()
 		#print(self.history_x, self.history_y)
 
@@ -113,15 +144,16 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self._graph.draw()
 		
 	def __update_readings(self):
-		#data = self.read_stream()
-		data = []
+		data = self.read_stream()
+		#data = []
 		if self._stream.value:
 			self.__update_graph(data)
 		if self._stream_file.value:
 			self.__write_to_file(data)
 
 	def __write_to_file(self,readings):
-		print('WRITING TO FILE')
+		for data in readings:
+			self._csvwriter.writerow(data)
 
 	def __zero_btn_evt(self): 
 		self.set_zero_position()
@@ -136,12 +168,15 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 
 	def __stream_changed_evt(self):
+		pass
+		'''
 		if self._stream.value:
 			self.enable_stream()
 			self._timer.start(100)
 		else:
 			self.disable_stream()
 			self._timer.stop()
+		'''
 
 	def __events_changed_evt(self):
 		if self._stream.value:
