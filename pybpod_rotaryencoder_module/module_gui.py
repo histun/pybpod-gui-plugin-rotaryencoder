@@ -79,6 +79,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self._timer.timeout.connect(self.__update_readings)
 		
 	def __prompt_savig_evt(self):
+		'''
+		Opens a window for user to select where to save the csv file
+		'''
 		self._filename.value, _ = QFileDialog.getSaveFileName()
 		if self._filename.value:
 			self._stream_file.enabled = True
@@ -88,8 +91,10 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 
 	def __stream_file_changed_evt(self):
+		'''
+		User wants to store rotary encoder measurements in a CSV file. Create it
+		'''
 		if self._stream_file.value == True:
-			print('opening csv writer')
 			self._csvfile    = open(self._filename.value, 'w')
 			self._csvwriter = csv.writer(
 				self._csvfile,
@@ -98,8 +103,10 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		
 
 	def __start_reading_evt(self):
+		'''
+		Toggle timer
+		'''
 		if self._timer.isActive():
-			print('TIMER ACTIVE... stoping')
 			self._start_reading.label = 'Start Reading'
 			self._timer.stop()
 		else:
@@ -107,15 +114,20 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			self.history_y = []
 			self._start_reading.label = 'Stop Reading'
 			self._timer.start(30)
-			print('TIMER INACTIVE... starting')
 		
 
 	def __clear_btn_evt(self):
+		'''
+		Clear recorded data
+		'''
 		self.history_x = []
 		self.history_y = []
 		self._graph.draw()
 
 	def __on_draw_evt(self, figure):
+		'''
+		The actual draw function. Pick just the last 200 measurements in order to avoid app freezing
+		'''
 		axes = figure.add_subplot(111)
 		axes.clear()
 		totallen = len(self.history_x)
@@ -138,12 +150,18 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		#print(self.history_x, self.history_y)
 
 	def __update_graph(self,readings):
+		'''
+		Add new data to the reading history and update the graph
+		'''
 		for data in readings:
 			self.history_x.append(data[0])
 			self.history_y.append(data[1])
 		self._graph.draw()
 		
 	def __update_readings(self):
+		'''
+		Get new measurements and channel them to the graph or the file being written
+		'''
 		data = self.read_stream()
 		#data = []
 		if self._stream.value:
@@ -152,6 +170,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			self.__write_to_file(data)
 
 	def __write_to_file(self,readings):
+		'''
+		Write new readings to the file
+		'''
 		for data in readings:
 			self._csvwriter.writerow(data)
 
@@ -169,14 +190,6 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 	def __stream_changed_evt(self):
 		pass
-		'''
-		if self._stream.value:
-			self.enable_stream()
-			self._timer.start(100)
-		else:
-			self.disable_stream()
-			self._timer.stop()
-		'''
 
 	def __events_changed_evt(self):
 		if self._stream.value:
