@@ -72,12 +72,18 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self._start_reading.value = self.__start_reading_evt
 		self._graph.on_draw = self.__on_draw_evt
 		self._clear_btn.value = self.__clear_btn_evt
+		self._filename.changed_event = self.__filename_changed_evt
 
 		self.history_x = []
 		self.history_y = []
 
 		self._timer = QTimer()
 		self._timer.timeout.connect(self.__update_readings)
+
+	def __filename_changed_evt(self):
+		if not self._filename.value:
+			self._stream_file.value = False
+			self._stream_file.enabled = False
 		
 	def __prompt_savig_evt(self):
 		'''
@@ -212,10 +218,11 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			self._thresh_lower.enabled = False
 			self._thresh_upper.enabled = False
 			self._start_reading.enabled = False
+			self._stream_file.enabled = False
 		else:
 			try:
 				self.open(self._port.value)
-				
+
 				self._connect_btn.label = 'Connected'
 				self._stream.enabled = True
 				self._events.enabled = True
@@ -224,6 +231,12 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 				self._thresh_lower.enabled = True
 				self._thresh_upper.enabled = True
 				self._start_reading.enabled = True
+
+				if self._filename.value:
+					self._stream_file.enabled = True
+				else:
+					self._stream_file.value   = False
+					self._stream_file.enabled = False
 			except  Exception as err:
 				QMessageBox.critical(self, "Error", str(err))
 				self._connect_btn.checked = False
