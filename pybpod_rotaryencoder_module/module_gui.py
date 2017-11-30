@@ -59,10 +59,10 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self._reset_threshs.enabled = False
 		self._thresh_lower.enabled = False
 		self._thresh_upper.enabled = False
+		self._start_reading.enabled = False
 
 		self._connect_btn.value = self.__toggle_connection_evt
 		self._saveas_btn.value = self.__prompt_savig_evt
-		self._stream.changed_event = self.__stream_changed_evt
 		self._stream_file.changed_event = self.__stream_file_changed_evt
 		self._events.changed_event = self.__events_changed_evt
 		self._thresh_upper.changed_event = self.__thresh_evt
@@ -108,7 +108,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		Toggle timer
 		'''
 		if self._timer.isActive():
-
+			self.disable_stream()
 			self._start_reading.label = 'Start Reading'
 			self._timer.stop()
 		else:
@@ -192,9 +192,6 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self.set_thresholds(thresholds)
 
 
-	def __stream_changed_evt(self):
-		pass
-
 	def __events_changed_evt(self):
 		if self._stream.value:
 			self.enable_evt_transmission()
@@ -214,6 +211,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			self._reset_threshs.enabled = False
 			self._thresh_lower.enabled = False
 			self._thresh_upper.enabled = False
+			self._start_reading.enabled = False
 		else:
 			try:
 				self.open(self._port.value)
@@ -225,6 +223,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 				self._reset_threshs.enabled = True
 				self._thresh_lower.enabled = True
 				self._thresh_upper.enabled = True
+				self._start_reading.enabled = True
 			except  Exception as err:
 				QMessageBox.critical(self, "Error", str(err))
 				self._connect_btn.checked = False
