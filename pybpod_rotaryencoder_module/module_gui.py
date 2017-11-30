@@ -1,16 +1,17 @@
-import pyforms, sip
+import pyforms, sip, sys
 from pyforms import BaseWidget
-from pyforms.Controls import ControlText, ControlCheckBox, ControlNumber, ControlButton
+from pyforms.Controls import ControlText, ControlCheckBox, ControlNumber, ControlButton, ControlFile
 from pyforms.Controls import ControlMatplotlib
 from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
-
+from sca.formats import csv
 from pysettings import conf
+
 if conf.PYFORMS_USE_QT5:
 	from PyQt5.QtCore import QTimer, QEventLoop
-	from PyQt5.QtWidgets import  QMessageBox
+	from PyQt5.QtWidgets import  QMessageBox, QFileDialog
 else:
 	from PyQt4.QtCore import QTimer, QEventLoop
-	from PyQt4.QtGui import  QMessageBox
+	from PyQt4.QtGui import  QMessageBox, QFileDialog
 	
 
 class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
@@ -24,9 +25,14 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self._port 			= ControlText('Serial port', '/dev/ttyACM1')
 		self._connect_btn   = ControlButton('Connect', checkable=True)
 
+		self._filename 		= ControlText('Stream Filename', '')
+		self._saveas_btn   = ControlButton('Save As...')
+
 		self._events 		= ControlCheckBox('Enable events')
 		self._stream 		= ControlCheckBox('Stream data')
+		self._stream_file   = ControlCheckBox('Stream to file')
 		self._zero_btn 		= ControlButton('Reset position')
+		self._start_reading = ControlButton('Start Reading')
 		self._reset_threshs = ControlButton('Reset thresholds')
 		self._thresh_lower 	= ControlNumber('Lower threshold (deg)', 0, -360, 360)
 		self._thresh_upper 	= ControlNumber('Upper threshold (deg)', 0, -360, 360)
@@ -37,7 +43,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 		self.formset = [
 			('_port','_connect_btn'),
-			('_events', '_stream','_zero_btn',),
+			('_filename','_saveas_btn'),
+			('_events', '_stream', '_stream_file', '_zero_btn'),
+			'_start_reading',
 			('_thresh_lower', '_thresh_upper', '_reset_threshs'),			
 			'=',
 			'_graph',
@@ -45,72 +53,150 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		]
 
 		self._stream.enabled = False
+		self._stream_file.enabled = False
 		self._events.enabled = False
 		self._zero_btn.enabled = False
 		self._reset_threshs.enabled = False
 		self._thresh_lower.enabled = False
 		self._thresh_upper.enabled = False
+		self._start_reading.enabled = False
 
 		self._connect_btn.value = self.__toggle_connection_evt
-		self._stream.changed_event = self.__stream_changed_evt
+		self._saveas_btn.value = self.__prompt_savig_evt
+		self._stream_file.changed_event = self.__stream_file_changed_evt
 		self._events.changed_event = self.__events_changed_evt
 		self._thresh_upper.changed_event = self.__thresh_evt
 		self._thresh_lower.changed_event = self.__thresh_evt
 		self._reset_threshs.value = self.__reset_thresholds_evt
 		self._zero_btn.value = self.__zero_btn_evt
+		self._start_reading.value = self.__start_reading_evt
 		self._graph.on_draw = self.__on_draw_evt
 		self._clear_btn.value = self.__clear_btn_evt
+		self._filename.changed_event = self.__filename_changed_evt
 
 		self.history_x = []
 		self.history_y = []
 
 		self._timer = QTimer()
-		self._timer.timeout.connect(self.__update_graph)
+		self._timer.timeout.connect(self.__update_readings)
+
+	def __filename_changed_evt(self):
+		if not self._filename.value:
+			self._stream_file.value = False
+			self._stream_file.enabled = False
+		
+	def __prompt_savig_evt(self):
+		'''
+		Opens a window for user to select where to save the csv file
+		'''
+		self._filename.value, _ = QFileDialog.getSaveFileName()
+		if self._filename.value:
+			self._stream_file.enabled = True
+		else:
+			self._stream_file.value = False
+			self._stream_file.enabled = False
+
+
+	def __stream_file_changed_evt(self):
+		'''
+		User wants to store rotary encoder measurements in a CSV file. Create it
+		'''
+		if self._stream_file.value == True:
+			self._csvfile    = open(self._filename.value, 'w')
+			self._csvwriter = csv.writer(
+				self._csvfile,
+				def_text='This file has all the rotary encoder data recorded during a PyBpod session.',
+				columns_headers=['EVT_TIME', 'VALUE']) # Check if we need something else after
+		
+
+	def __start_reading_evt(self):
+		'''
+		Toggle timer
+		'''
+		if self._timer.isActive():
+			self.disable_stream()
+			self._start_reading.label = 'Start Reading'
+			self._timer.stop()
+		else:
+			self.enable_stream()
+			self.history_x = []
+			self.history_y = []
+			self._start_reading.label = 'Stop Reading'
+			self._timer.start(30)
+		
 
 	def __clear_btn_evt(self):
+		'''
+		Clear recorded data
+		'''
 		self.history_x = []
 		self.history_y = []
 		self._graph.draw()
 
 	def __on_draw_evt(self, figure):
+		'''
+		The actual draw function. Pick just the last 200 measurements in order to avoid app freezing
+		'''
 		axes = figure.add_subplot(111)
-		axes.clear();
-		axes.plot(self.history_x, self.history_y) 
-
-		if len(self.history_x)>=2:
-			x_range = [self.history_x[0],self.history_x[-1]]
-			axes.plot(x_range,[self._thresh_upper.value, self._thresh_upper.value], linestyle='dotted', color='red')
-			axes.plot(x_range,[self._thresh_lower.value, self._thresh_lower.value], linestyle='dotted', color='blue')
-
+		axes.clear()
+		totallen = len(self.history_x)
+		if totallen > 200:
+			x = self.history_x[totallen - 201:]
+			y = self.history_y[totallen - 201:]
+			axes.plot(x,y)
+			if len(x)>=2:
+				x_range = [x[0],x[-1]]
+				axes.plot(x_range,[self._thresh_upper.value, self._thresh_upper.value], linestyle='dotted', color='red')
+				axes.plot(x_range,[self._thresh_lower.value, self._thresh_lower.value], linestyle='dotted', color='blue')
+		else:
+			axes.plot(self.history_x, self.history_y)
+			if len(self.history_x)>=2:
+				x_range = [self.history_x[0],self.history_x[-1]]
+				axes.plot(x_range,[self._thresh_upper.value, self._thresh_upper.value], linestyle='dotted', color='red')
+				axes.plot(x_range,[self._thresh_lower.value, self._thresh_lower.value], linestyle='dotted', color='blue')
+		
 		self._graph.repaint()
 		#print(self.history_x, self.history_y)
 
-	def __update_graph(self):
-		for data in self.read_stream():
+	def __update_graph(self,readings):
+		'''
+		Add new data to the reading history and update the graph
+		'''
+		for data in readings:
 			self.history_x.append(data[0])
 			self.history_y.append(data[1])
-
 		self._graph.draw()
+		
+	def __update_readings(self):
+		'''
+		Get new measurements and channel them to the graph or the file being written
+		'''
+		data = self.read_stream()
+		
+		if self._stream.value:
+			self.__update_graph(data)
+		if self._stream_file.value:
+			self.__write_to_file(data)
+
+	def __write_to_file(self,readings):
+		'''
+		Write new readings to the file
+		'''
+		for data in readings:
+			self._csvwriter.writerow(data)
 
 	def __zero_btn_evt(self): 
 		self.set_zero_position()
 
 	def __reset_thresholds_evt(self):
-		pass
+		self._thresh_lower.value = 0
+		self._thresh_upper.value = 0
 
 
 	def __thresh_evt(self):
 		thresholds = [int(self._thresh_lower.value), int(self._thresh_upper.value) ]	
 		self.set_thresholds(thresholds)
 
-
-	def __stream_changed_evt(self):
-		if self._stream.value:
-			self.enable_stream()
-			self._timer.start(100)
-		else:
-			self.disable_stream()
-			self._timer.stop()
 
 	def __events_changed_evt(self):
 		if self._stream.value:
@@ -131,10 +217,12 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			self._reset_threshs.enabled = False
 			self._thresh_lower.enabled = False
 			self._thresh_upper.enabled = False
+			self._start_reading.enabled = False
+			self._stream_file.enabled = False
 		else:
 			try:
 				self.open(self._port.value)
-				
+
 				self._connect_btn.label = 'Connected'
 				self._stream.enabled = True
 				self._events.enabled = True
@@ -142,11 +230,16 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 				self._reset_threshs.enabled = True
 				self._thresh_lower.enabled = True
 				self._thresh_upper.enabled = True
+				self._start_reading.enabled = True
+
+				if self._filename.value:
+					self._stream_file.enabled = True
+				else:
+					self._stream_file.value   = False
+					self._stream_file.enabled = False
 			except  Exception as err:
 				QMessageBox.critical(self, "Error", str(err))
 				self._connect_btn.checked = False
-
-
 
 
 if __name__=='__main__':
