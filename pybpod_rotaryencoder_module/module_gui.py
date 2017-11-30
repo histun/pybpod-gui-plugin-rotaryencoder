@@ -44,7 +44,8 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self.formset = [
 			('_port','_connect_btn'),
 			('_filename','_saveas_btn'),
-			('_events', '_stream', '_stream_file', '_start_reading', '_zero_btn',),
+			('_events', '_stream', '_stream_file', '_zero_btn'),
+			'_start_reading',
 			('_thresh_lower', '_thresh_upper', '_reset_threshs'),			
 			'=',
 			'_graph',
@@ -107,9 +108,11 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		Toggle timer
 		'''
 		if self._timer.isActive():
+
 			self._start_reading.label = 'Start Reading'
 			self._timer.stop()
 		else:
+			self.enable_stream() 
 			self.history_x = []
 			self.history_y = []
 			self._start_reading.label = 'Stop Reading'
@@ -163,7 +166,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		Get new measurements and channel them to the graph or the file being written
 		'''
 		data = self.read_stream()
-		#data = []
+		
 		if self._stream.value:
 			self.__update_graph(data)
 		if self._stream_file.value:
@@ -180,7 +183,8 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self.set_zero_position()
 
 	def __reset_thresholds_evt(self):
-		pass
+		self._thresh_lower.value = 0
+		self._thresh_upper.value = 0
 
 
 	def __thresh_evt(self):
