@@ -108,11 +108,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		Toggle timer
 		'''
 		if self._timer.isActive():
-
 			self._start_reading.label = 'Start Reading'
 			self._timer.stop()
 		else:
-			self.enable_stream() 
 			self.history_x = []
 			self.history_y = []
 			self._start_reading.label = 'Stop Reading'
@@ -150,7 +148,6 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 				axes.plot(x_range,[self._thresh_lower.value, self._thresh_lower.value], linestyle='dotted', color='blue')
 		
 		self._graph.repaint()
-		#print(self.history_x, self.history_y)
 
 	def __update_graph(self,readings):
 		'''
