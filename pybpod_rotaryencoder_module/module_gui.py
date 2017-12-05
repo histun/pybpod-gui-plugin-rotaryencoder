@@ -4,6 +4,7 @@ from pyforms.Controls import ControlText, ControlCheckBox, ControlNumber, Contro
 from pyforms.Controls import ControlMatplotlib
 from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
 from sca.formats import csv
+from datetime import datetime
 from pysettings import conf
 
 if conf.PYFORMS_USE_QT5:
@@ -106,7 +107,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			self._csvwriter = csv.writer(
 				self._csvfile,
 				def_text='This file has all the rotary encoder data recorded during a PyBpod session.',
-				columns_headers=['EVT_TIME', 'VALUE']) # Check if we need something else after
+				columns_headers=['PC_TIME', 'EVT_TIME', 'VALUE']) # Check if we need something else after
 		
 
 	def __start_reading_evt(self):
@@ -182,8 +183,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		'''
 		Write new readings to the file
 		'''
+		now = datetime.now()
 		for data in readings:
-			self._csvwriter.writerow(data)
+			self._csvwriter.writerow([now.strftime('%Y%m%d%H%M%S')]+data)
 
 	def __zero_btn_evt(self): 
 		self.set_zero_position()
