@@ -90,7 +90,7 @@ class RotaryEncoderModule(object):
 				position = int.from_bytes( data_in_bytes[i:i+2],   byteorder='little', signed=True)
 				evt_time = float(int.from_bytes( data_in_bytes[i+2:i+6], byteorder='little', signed=False))/1000.0				
 				position_degrees = self.__pos_2_degrees(position)				
-				data.append((evt_time, position_degrees))			
+				data.append([evt_time, position_degrees])			
 		return data
 
 
