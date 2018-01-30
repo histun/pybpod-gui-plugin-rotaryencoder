@@ -1,7 +1,7 @@
 import pyforms, sip, sys
 from pyforms import BaseWidget
-from pyforms.Controls import ControlText, ControlCheckBox, ControlNumber, ControlButton, ControlFile
-from pyforms.Controls import ControlMatplotlib
+from pyforms.controls import ControlText, ControlCheckBox, ControlNumber, ControlButton, ControlFile
+from pyforms.controls import ControlMatplotlib
 from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
 from sca.formats import csv
 from datetime import datetime
