@@ -8,7 +8,7 @@ __status__ 		= "Development"
 
 __version__ = "0"
 
-from pysettings import conf
+from pyforms import conf
 
 conf += 'pybpod_rotaryencoder_module.settings'
 

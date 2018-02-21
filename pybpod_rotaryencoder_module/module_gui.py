@@ -5,7 +5,7 @@ from pyforms.controls import ControlMatplotlib
 from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
 from sca.formats import csv
 from datetime import datetime
-from pysettings import conf
+from pyforms import conf
 
 if conf.PYFORMS_USE_QT5:
 	from PyQt5.QtCore import QTimer, QEventLoop

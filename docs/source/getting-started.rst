@@ -16,7 +16,7 @@ This library requires the next Python 3 packages to be installed.
 - sip
 - pyqt5
 - matplotlib
-- https://github.com/UmSenhorQualquer/pysettings.git
+- https://github.com/UmSenhorQualquer/pyforms.git
 - https://UmSenhorQualquer@bitbucket.org/fchampalimaud/logging-bootstrap.git
 - https://github.com/UmSenhorQualquer/pyforms.git
 
