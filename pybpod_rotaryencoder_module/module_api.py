@@ -22,7 +22,7 @@ class RotaryEncoderModule(object):
 		Constructer of the RotaryEncoderModule object
 		A a serial connection to the Rotary Encoder board is oppened at the construction of the object.
 
-		:ivar str serialport: PC serial port where the module is connect	
+		:ivar str serialport: PC serial port where the module is connect
 		"""
 		if serialport: self.open(serialport)
 
@@ -30,7 +30,7 @@ class RotaryEncoderModule(object):
 		"""
 		Opens a serial connection to the Rotary Encoder board.
 
-		:ivar str serialport: PC serial port where the module is connect	
+		:ivar str serialport: PC serial port where the module is connect
 		"""
 		self.arcom = ArCOM().open(serialport, 115200)
 		self.arcom.write_char(self.COM_HANDSHAKE)
@@ -64,16 +64,16 @@ class RotaryEncoderModule(object):
 		return self.arcom.read_uint8()==1
 
 
-	def enable_stream(self):  
+	def enable_stream(self):
 		"""
 		Enable the streaming of the position and the time measurements to the USB port.
-		"""		
+		"""
 		self.arcom.write_array([ord(self.COM_TOGGLESTREAM), 1])
 
 	def disable_stream(self):
 		"""
 		Disable the streaming of the position and the time measurements to the USB port.
-		"""		
+		"""
 		self.arcom.write_array([ord(self.COM_TOGGLESTREAM), 0])
 
 	def read_stream(self):
@@ -84,23 +84,23 @@ class RotaryEncoderModule(object):
 		available = self.arcom.bytes_available()
 
 		if available>5:
-			msg = self.arcom.read_bytes_array(available)			
+			msg = self.arcom.read_bytes_array(available)
+			data_in_bytes = b''.join(msg)
 			for i in range(0, len(msg), 6):
-				data_in_bytes = b''.join(msg)
 				position = int.from_bytes( data_in_bytes[i:i+2],   byteorder='little', signed=True)
-				evt_time = float(int.from_bytes( data_in_bytes[i+2:i+6], byteorder='little', signed=False))/1000.0				
-				position_degrees = self.__pos_2_degrees(position)				
-				data.append([evt_time, position_degrees])			
+				evt_time = float(int.from_bytes( data_in_bytes[i+2:i+6], byteorder='little', signed=False))/1000.0
+				position_degrees = self.__pos_2_degrees(position)
+				data.append([evt_time, position_degrees])
 		return data
 
 
-	def enable_logging(self): 	
+	def enable_logging(self):
 		"""
 		Enable the logging to the SD Card.
 		"""
 		self.arcom.write_array([ord(self.COM_STARTLOGGING)])
 
-	def disable_logging(self): 	
+	def disable_logging(self):
 		"""
 		Disable the logging to the SD Card.
 		"""
@@ -113,15 +113,17 @@ class RotaryEncoderModule(object):
 		self.arcom.write_array([ord(self.COM_GETLOGDATA)])
 		msg    = self.arcom.read_bytes_array(4)
 		n_logs = int.from_bytes( b''.join(msg), byteorder='little', signed=False)
-		data = []
-		for i in range(0, n_logs, 6):
-			msg = self.arcom.read_bytes_array(6)
+		data   = []
+
+		for i in range(0, n_logs):
+			msg = self.arcom.read_bytes_array(8)
 			data_in_bytes = b''.join(msg)
-			position = int.from_bytes( data_in_bytes[i:i+2],   byteorder='little', signed=True)
-			evt_time = float(int.from_bytes( data_in_bytes[i+2:i+6], byteorder='little', signed=False))/1000.0
-			position_degrees = self.__pos_2_degrees(position)				
+
+			position = int.from_bytes( data_in_bytes[:4],       byteorder='little', signed=True)
+			evt_time = float(int.from_bytes( data_in_bytes[4:], byteorder='little', signed=False))/1000.0
+			position_degrees = self.__pos_2_degrees(position)
 			data.append((evt_time, position_degrees))
-			
+
 		return data
 
 
@@ -134,18 +136,18 @@ class RotaryEncoderModule(object):
 		data_in_bytes = b''.join(self.arcom.read_bytes_array(2))
 		ticks = int.from_bytes( data_in_bytes, byteorder='little', signed=True)
 		return self.__pos_2_degrees(ticks)
-		
+
 	def set_zero_position(self):
 		"""
-		Set current rotary encoder position to zero. 
-		"""		
+		Set current rotary encoder position to zero.
+		"""
 		self.arcom.write_array([ord(self.COM_SETZEROPOS)])
 
 	def set_prefix(self, prefix):
 		"""
 		:ivar char prefix: One character to be used as prefix.
 		Set 1-character prefix for module output stream.
-		"""		
+		"""
 		self.arcom.write_array([ord(self.COM_SETPREFIX), prefix])
 		return self.arcom.read_uint8()==1
 
@@ -154,31 +156,31 @@ class RotaryEncoderModule(object):
 		Set the thresholds values to trigger the events.
 
 		:ivar list(int) thresholds: List, in maximum, of 6 thresholds to trigger events.
-		"""		
+		"""
 		data  = ArduinoTypes.get_uint8_array([ord(self.COM_SETTHRESHOLDS), len(thresholds) ])
 		data += ArduinoTypes.get_uint16_array([ self.__degrees_2_pos(thresh) for thresh in thresholds])
 		self.arcom.write_array(data )
 		return self.arcom.read_uint8()==1
-		
+
 	def set_position(self, degrees):
 		"""
 		Set the current position in degrees.
 
 		:ivar int degrees: current position in degrees.
-		"""		
+		"""
 		ticks = self.__degrees_2_pos(degrees)
 		data  = ArduinoTypes.get_uint8_array([ord(self.COM_SETPOS)])
 		data += ticks.to_bytes(2, byteorder='little', signed=True)
-		
+
 		self.arcom.write_array(data)
 		return self.arcom.read_uint8()==1
 
 	def set_wrappoint(self, wrap_point):
 		"""
 		Set wrap point (number of tics in a half-rotation)
-		
+
 		:ivar int wrap_point: number of tics in a half-rotation.
-		"""		
+		"""
 		ticks = self.__degrees_2_pos(wrap_point)
 		self.arcom.write_array([ord(self.COM_SETWRAPPOINT)]+ ArduinoTypes.get_uint16_array([ticks]) )
 		return self.arcom.read_uint8()==1
@@ -186,9 +188,9 @@ class RotaryEncoderModule(object):
 	def enable_thresholds(self, thresholds):
 		"""
 		Enable the thresholds.
-		
+
 		:ivar list(boolean) thresholds: list of 6 booleans indicating which thresholds are active to trigger events.
-		"""		
+		"""
 		if len(thresholds)!=8: raise Exception('Thresholds array has to be of length 8')
 		string = ''.join(map(lambda x: str(int(x)), thresholds))
 		bits = int(string, 2)
@@ -203,13 +205,13 @@ if __name__=='__main__':
 	m = RotaryEncoderModule('/dev/ttyACM1')
 
 	#m.start_logging()
-	
+
 	#m.stop_logging()
 
 	m.enable_stream()
-	
-	
-	
+
+
+
 	count = 0
 	while count<100 or True:
 		data = m.read_stream()
@@ -219,7 +221,7 @@ if __name__=='__main__':
 		count += 1
 
 	m.disable_stream()
-	
+
 	print('set', m.set_position(179))
 	m.set_zero_position()
 
