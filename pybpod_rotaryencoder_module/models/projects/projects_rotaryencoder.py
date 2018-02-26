@@ -1,10 +1,8 @@
 # !/usr/bin/python3
 # -*- coding: utf-8 -*-
 from pyforms import conf
-if conf.PYFORMS_USE_QT5:
-	from PyQt5.QtGui import QIcon
-else:
-	from PyQt4.QtGui import QIcon
+from AnyQt.QtGui import QIcon
+
 
 from pybpod_rotaryencoder_module.module_gui import RotaryEncoderModuleGUI
 

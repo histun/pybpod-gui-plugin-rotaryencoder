@@ -4,16 +4,11 @@ from pyforms.controls import ControlText, ControlCheckBox, ControlNumber, Contro
 from pyforms.controls import ControlMatplotlib
 from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
 from sca.formats import csv
-from datetime import datetime
+from datetime import datetime as datetime_now
 from pyforms import conf
 
-if conf.PYFORMS_USE_QT5:
-	from PyQt5.QtCore import QTimer, QEventLoop
-	from PyQt5.QtWidgets import  QMessageBox, QFileDialog
-else:
-	from PyQt4.QtCore import QTimer, QEventLoop
-	from PyQt4.QtGui import  QMessageBox, QFileDialog
-	
+from AnyQt.QtCore    import QTimer
+from AnyQt.QtWidgets import QFileDialog
 
 class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
@@ -183,7 +178,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		'''
 		Write new readings to the file
 		'''
-		now = datetime.now()
+		now = datetime_now.now()
 		for data in readings:
 			self._csvwriter.writerow([now.strftime('%Y%m%d%H%M%S')]+data)
 
@@ -240,7 +235,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 					self._stream_file.value   = False
 					self._stream_file.enabled = False
 			except  Exception as err:
-				QMessageBox.critical(self, "Error", str(err))
+				self.critical(str(err),  "Error")
 				self._connect_btn.checked = False
 
 
