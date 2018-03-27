@@ -3,18 +3,18 @@ from pybpodapi.com.arcom import ArCOM, ArduinoTypes
 class RotaryEncoderModule(object):
 
 	COM_HANDSHAKE 		 = 'C'
-	COM_TOGGLEEVTTRANSM  = 'V'
-	COM_TOGGLESTREAM 	 = 'S'
-	COM_STARTLOGGING 	 = 'L'
-	COM_STOPLOGGING 	 = 'F'
-	COM_GETLOGDATA 		 = 'R'
-	COM_GETCURRENTPOS  	 = 'Q'
-	COM_SETZEROPOS 		 = 'Z'
-	COM_SETPOS 			 = 'P'
-	COM_ENABLETHRESHOLDS = ';'
-	COM_SETPREFIX	 	 = 'I'
-	COM_SETTHRESHOLDS 	 = 'T'
-	COM_SETWRAPPOINT 	 = 'W'
+	COM_TOGGLEEVTTRANSM  = ord('V')
+	COM_TOGGLESTREAM 	 = ord('S')
+	COM_STARTLOGGING 	 = ord('L')
+	COM_STOPLOGGING 	 = ord('F')
+	COM_GETLOGDATA 		 = ord('R')
+	COM_GETCURRENTPOS  	 = ord('Q')
+	COM_SETZEROPOS 		 = ord('Z')
+	COM_SETPOS 			 = ord('P')
+	COM_ENABLETHRESHOLDS = ord(';')
+	COM_SETPREFIX	 	 = ord('I')
+	COM_SETTHRESHOLDS 	 = ord('T')
+	COM_SETWRAPPOINT 	 = ord('W')
 
 
 	def __init__(self, serialport=None):
@@ -52,7 +52,7 @@ class RotaryEncoderModule(object):
 		"""
 		Enable the transmission of the events.
 		"""
-		self.arcom.write_array([ord(self.COM_TOGGLEEVTTRANSM), 1])
+		self.arcom.write_array([self.COM_TOGGLEEVTTRANSM, 1])
 		return self.arcom.read_uint8()==1
 
 
@@ -68,13 +68,13 @@ class RotaryEncoderModule(object):
 		"""
 		Enable the streaming of the position and the time measurements to the USB port.
 		"""
-		self.arcom.write_array([ord(self.COM_TOGGLESTREAM), 1])
+		self.arcom.write_array([self.COM_TOGGLESTREAM, 1])
 
 	def disable_stream(self):
 		"""
 		Disable the streaming of the position and the time measurements to the USB port.
 		"""
-		self.arcom.write_array([ord(self.COM_TOGGLESTREAM), 0])
+		self.arcom.write_array([self.COM_TOGGLESTREAM, 0])
 
 	def read_stream(self):
 		"""
@@ -98,19 +98,19 @@ class RotaryEncoderModule(object):
 		"""
 		Enable the logging to the SD Card.
 		"""
-		self.arcom.write_array([ord(self.COM_STARTLOGGING)])
+		self.arcom.write_array([self.COM_STARTLOGGING])
 
 	def disable_logging(self):
 		"""
 		Disable the logging to the SD Card.
 		"""
-		self.arcom.write_array([ord(self.COM_STOPLOGGING)])
+		self.arcom.write_array([self.COM_STOPLOGGING])
 
 	def get_logged_data(self):
 		"""
 		Retreave the logged data in the SD Card.
 		"""
-		self.arcom.write_array([ord(self.COM_GETLOGDATA)])
+		self.arcom.write_array([self.COM_GETLOGDATA])
 		msg    = self.arcom.read_bytes_array(4)
 		n_logs = int.from_bytes( b''.join(msg), byteorder='little', signed=False)
 		data   = []
@@ -132,7 +132,7 @@ class RotaryEncoderModule(object):
 		"""
 		Retreave the current position.
 		"""
-		self.arcom.write_array([ord(self.COM_GETCURRENTPOS)])
+		self.arcom.write_array([self.COM_GETCURRENTPOS])
 		data_in_bytes = b''.join(self.arcom.read_bytes_array(2))
 		ticks = int.from_bytes( data_in_bytes, byteorder='little', signed=True)
 		return self.__pos_2_degrees(ticks)
@@ -141,14 +141,14 @@ class RotaryEncoderModule(object):
 		"""
 		Set current rotary encoder position to zero.
 		"""
-		self.arcom.write_array([ord(self.COM_SETZEROPOS)])
+		self.arcom.write_array([self.COM_SETZEROPOS])
 
 	def set_prefix(self, prefix):
 		"""
 		:ivar char prefix: One character to be used as prefix.
 		Set 1-character prefix for module output stream.
 		"""
-		self.arcom.write_array([ord(self.COM_SETPREFIX), prefix])
+		self.arcom.write_array([self.COM_SETPREFIX, prefix])
 		return self.arcom.read_uint8()==1
 
 	def set_thresholds(self, thresholds):
@@ -157,7 +157,7 @@ class RotaryEncoderModule(object):
 
 		:ivar list(int) thresholds: List, in maximum, of 6 thresholds to trigger events.
 		"""
-		data  = ArduinoTypes.get_uint8_array([ord(self.COM_SETTHRESHOLDS), len(thresholds) ])
+		data  = ArduinoTypes.get_uint8_array([self.COM_SETTHRESHOLDS, len(thresholds) ])
 		data += ArduinoTypes.get_uint16_array([ self.__degrees_2_pos(thresh) for thresh in thresholds])
 		self.arcom.write_array(data )
 		return self.arcom.read_uint8()==1
@@ -169,7 +169,7 @@ class RotaryEncoderModule(object):
 		:ivar int degrees: current position in degrees.
 		"""
 		ticks = self.__degrees_2_pos(degrees)
-		data  = ArduinoTypes.get_uint8_array([ord(self.COM_SETPOS)])
+		data  = ArduinoTypes.get_uint8_array([self.COM_SETPOS])
 		data += ticks.to_bytes(2, byteorder='little', signed=True)
 
 		self.arcom.write_array(data)
@@ -182,7 +182,7 @@ class RotaryEncoderModule(object):
 		:ivar int wrap_point: number of tics in a half-rotation.
 		"""
 		ticks = self.__degrees_2_pos(wrap_point)
-		self.arcom.write_array([ord(self.COM_SETWRAPPOINT)]+ ArduinoTypes.get_uint16_array([ticks]) )
+		self.arcom.write_array([self.COM_SETWRAPPOINT]+ ArduinoTypes.get_uint16_array([ticks]) )
 		return self.arcom.read_uint8()==1
 
 	def enable_thresholds(self, thresholds):
@@ -194,7 +194,7 @@ class RotaryEncoderModule(object):
 		if len(thresholds)!=8: raise Exception('Thresholds array has to be of length 8')
 		string = ''.join(map(lambda x: str(int(x)), thresholds))
 		bits = int(string, 2)
-		self.arcom.write_array([ord(self.COM_ENABLETHRESHOLDS), bits])
+		self.arcom.write_array([self.COM_ENABLETHRESHOLDS, bits])
 
 
 
