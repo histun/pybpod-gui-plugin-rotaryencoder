@@ -30,8 +30,8 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self._zero_btn 		= ControlButton('Reset position')
 		self._start_reading = ControlButton('Start Reading')
 		self._reset_threshs = ControlButton('Reset thresholds')
-		self._thresh_lower 	= ControlNumber('Lower threshold (deg)', 0, -360, 360)
-		self._thresh_upper 	= ControlNumber('Upper threshold (deg)', 0, -360, 360)
+		self._thresh_lower 	= ControlNumber('Lower threshold (deg)', 0, minimum=-360, maximum=360)
+		self._thresh_upper 	= ControlNumber('Upper threshold (deg)', 0, minimum=-360, maximum=360)
 		self._graph 		= ControlMatplotlib('Value')
 		self._clear_btn 	= ControlButton('Clear')
 
@@ -102,7 +102,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			self._csvwriter = csv.writer(
 				self._csvfile,
 				def_text='This file has all the rotary encoder data recorded during a PyBpod session.',
-				columns_headers=['PC_TIME', 'EVT_TIME', 'VALUE']) # Check if we need something else after
+				columns_headers=['PC_TIME', 'DATA_TYPE','EVT_TIME', 'VALUE']) # Check if we need something else after
 		
 
 	def __start_reading_evt(self):
@@ -159,8 +159,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		Add new data to the reading history and update the graph
 		'''
 		for data in readings:
-			self.history_x.append(data[0])
-			self.history_y.append(data[1])
+			if data[0]=='P':
+				self.history_x.append(data[1])
+				self.history_y.append(data[2])
 		self._graph.draw()
 		
 	def __update_readings(self):

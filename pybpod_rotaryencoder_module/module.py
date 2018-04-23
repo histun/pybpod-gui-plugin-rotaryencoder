@@ -12,6 +12,8 @@ class RotaryEncoder(BpodModule):
     COM_SETZEROPOS              = ord('Z')
     COM_START_LOGGING           = ord('L')
     COM_STOP_LOGGING            = ord('F')
+    COM_TIMESTAMP_BYTE          = ord('#')
+
 
     @staticmethod
     def check_module_type(module_name):
@@ -67,3 +69,9 @@ class RotaryEncoder(BpodModule):
         Finish logging position+time data to the microSD card. 
         """
         self.write_char_array([self.COM_STOP_LOGGING])
+
+    def timestamp_byte(self, value):
+        """
+        value as to be a byte
+        """
+        self.write_char_array([self.COM_TIMESTAMP_BYTE, value])
