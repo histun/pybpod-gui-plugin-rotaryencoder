@@ -1,5 +1,5 @@
 import pyforms, sip, sys
-from pyforms import BaseWidget
+from pyforms.basewidget import BaseWidget
 from pyforms.controls import ControlText, ControlCheckBox, ControlNumber, ControlButton, ControlFile
 from pyforms.controls import ControlMatplotlib
 from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
