@@ -12,3 +12,5 @@ pybpod_rotaryencoder_module\.egg-info/
 build/
 
 dist/
+
+pybpod_gui_plugin_rotaryencoder\.egg-info/
