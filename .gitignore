@@ -8,3 +8,7 @@ docs/build/html/
 docs/build/
 
 pybpod_rotaryencoder_module\.egg-info/
+
+build/
+
+dist/
