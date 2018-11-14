@@ -95,7 +95,7 @@ class RotaryEncoderModule(object):
                 elif msg[0]==b'E':
                     origin = msg[1]
                     event  = msg[2]
-                    evt_time = float(int.from_bytes( b''.join(data[3:7]), byteorder='little', signed=False))/1000.0
+                    evt_time = float(int.from_bytes( b''.join(msg[3:7]), byteorder='little', signed=False))/1000.0
                     res.append(['E',evt_time, origin, event])
                 
                 msg = msg[7:]
