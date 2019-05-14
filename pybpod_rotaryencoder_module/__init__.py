@@ -6,8 +6,6 @@ __maintainer__ 	= ['Ricardo Ribeiro']
 __email__ 		= ['ricardojvr@gmail.com']
 __status__ 		= "Development"
 
-__version__ = "0"
-
 from confapp import conf
 
 conf += 'pybpod_rotaryencoder_module.settings'
