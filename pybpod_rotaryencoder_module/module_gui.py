@@ -237,7 +237,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			try:
 				self.open(self._port.value)
 
-				self._connect_btn.label = 'Connected'
+				self._connect_btn.label = 'Disconnect'
 				self._stream.enabled = True
 				self._events.enabled = True
 				self._zero_btn.enabled = True
