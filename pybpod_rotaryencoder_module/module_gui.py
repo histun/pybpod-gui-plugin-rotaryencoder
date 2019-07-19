@@ -226,6 +226,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
             self._thresh_upper.enabled = False
             self._start_reading.enabled = False
             self._stream_file.enabled = False
+
+            self._port.enabled = True
+            self._refresh_serial_ports.enabled = True
         else:
             try:
                 self.open(self._port.value)
@@ -239,6 +242,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
                 self._thresh_upper.enabled = True
                 self._start_reading.enabled = True
 
+                self._port.enabled = False
+                self._refresh_serial_ports.enabled = False
+
                 if self._filename.value:
                     self._stream_file.enabled = True
                 else:
@@ -249,7 +255,6 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
                 self._connect_btn.checked = False
 
     def __combo_serial_ports_changed_evt(self):
-        # TODO: close current COM connection if it is active
         self._connect_btn.enabled = True
 
     def __refresh_serial_ports_btn_pressed(self):
