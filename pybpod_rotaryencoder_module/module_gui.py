@@ -1,14 +1,19 @@
-import pyforms, sip, sys
+import pyforms
+import sip
+import sys
+import serial
 from pyforms.basewidget import BaseWidget
-from pyforms.controls import ControlText, ControlCheckBox, ControlNumber, ControlButton, ControlFile
+from pyforms.controls import ControlText, ControlCheckBox, ControlNumber, ControlButton, ControlCombo
 from pyforms.controls import ControlMatplotlib
 from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
 from sca.formats import csv
 from datetime import datetime as datetime_now
 from confapp import conf
 
-from AnyQt.QtCore    import QTimer
+from AnyQt import QtGui
+from AnyQt.QtCore import QTimer
 from AnyQt.QtWidgets import QFileDialog
+
 
 class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
@@ -18,7 +23,13 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		BaseWidget.__init__(self, self.TITLE, parent_win=parent_win)
 		RotaryEncoderModule.__init__(self)
 
-		self._port 			= ControlText('Serial port', '/dev/ttyACM1')
+		self._port = ControlCombo('Serial port', changed_event=self.__combo_serial_ports_changed_evt)
+		self._refresh_serial_ports = ControlButton('',
+												icon=QtGui.QIcon(conf.REFRESH_SMALL_ICON),
+												default=self.__refresh_serial_ports_btn_pressed,
+												helptext="Press here to refresh the list of available devices.")
+
+		#self._port 			= ControlText('Serial port', '/dev/ttyACM1')
 		self._connect_btn   = ControlButton('Connect', checkable=True)
 
 		self._filename 		= ControlText('Stream Filename', '')
@@ -38,11 +49,11 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self.set_margin(10)
 
 		self.formset = [
-			('_port','_connect_btn'),
-			('_filename','_saveas_btn'),
+			('_port', '_refresh_serial_ports', '_connect_btn'),
+			('_filename', '_saveas_btn'),
 			('_events', '_stream', '_stream_file', '_zero_btn'),
 			'_start_reading',
-			('_thresh_lower', '_thresh_upper', '_reset_threshs'),			
+			('_thresh_lower', '_thresh_upper', '_reset_threshs'),
 			'=',
 			'_graph',
 			'_clear_btn'
@@ -75,6 +86,13 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
 		self._timer = QTimer()
 		self._timer.timeout.connect(self.__update_readings)
+
+		self._fill_serial_ports()
+
+	def _fill_serial_ports(self):
+		self._port.add_item('', '')
+		for n, port in enumerate(sorted(serial.tools.list_ports.comports()), 1):
+			self._port.add_item("{device}".format(device=port.device), str(port.device))
 
 	def __filename_changed_evt(self):
 		if not self._filename.value:
@@ -190,11 +208,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self._thresh_lower.value = 0
 		self._thresh_upper.value = 0
 
-
 	def __thresh_evt(self):
 		thresholds = [int(self._thresh_lower.value), int(self._thresh_upper.value) ]	
 		self.set_thresholds(thresholds)
-
 
 	def __events_changed_evt(self):
 		if self._stream.value:
@@ -238,6 +254,16 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			except  Exception as err:
 				self.critical(str(err),  "Error")
 				self._connect_btn.checked = False
+	
+	def __combo_serial_ports_changed_evt(self):
+		# TODO: close current COM connection if it is active
+		self._connect_btn.enabled = True
+
+	def __refresh_serial_ports_btn_pressed(self):
+		tmp = self._port.value
+		self._port.clear()
+		self._fill_serial_ports()
+		self._port.value = tmp
 
 
 if __name__=='__main__':
