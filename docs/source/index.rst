@@ -14,9 +14,11 @@ Welcome to Rotary Encoder Module's documentation!
 What is the Rotary Encoder Module
 ===================================
 
-The `Rotary Encoder Module <https://sanworks.io/shop/viewproduct?productID=1022>`_ is a board developed by `sanworks.io <https://sanworks.io>`_ , to record and analyze rotational movements from a motor.
-On this documentation it is explained how to use the **pybpod_rotaryencoder_module** Python 3 library to control this module.
+The `Rotary Encoder Module <https://sanworks.io/shop/viewproduct?productID=1022>`_ is a board developed
+by `sanworks.io <https://sanworks.io>`, to record and analyze rotational movements from a motor.
 
+On this documentation it is explained how to use the **pybpod_rotaryencoder_module**
+Python 3 library to control this module.
 
 
 .. toctree::
@@ -26,7 +28,7 @@ On this documentation it is explained how to use the **pybpod_rotaryencoder_modu
    :caption: Getting started
 
    getting-started.rst
-
+   changelog
 
 .. toctree::
    :hidden:

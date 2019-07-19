@@ -1,0 +1,6 @@
+Changelog
+=========
+
+0.1.2 (2019-07-xx)
+------------------
+* Added ComboBox and a refresh button for the serial port selection for the Rotary Encoder
