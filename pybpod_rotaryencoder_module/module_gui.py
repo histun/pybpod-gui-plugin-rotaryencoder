@@ -1,18 +1,14 @@
 import pyforms, sip, sys
-from pyforms import BaseWidget
-from pyforms.Controls import ControlText, ControlCheckBox, ControlNumber, ControlButton, ControlFile
-from pyforms.Controls import ControlMatplotlib
+from pyforms.basewidget import BaseWidget
+from pyforms.controls import ControlText, ControlCheckBox, ControlNumber, ControlButton, ControlFile
+from pyforms.controls import ControlMatplotlib
 from pybpod_rotaryencoder_module.module_api import RotaryEncoderModule
 from sca.formats import csv
-from pysettings import conf
+from datetime import datetime as datetime_now
+from confapp import conf
 
-if conf.PYFORMS_USE_QT5:
-	from PyQt5.QtCore import QTimer, QEventLoop
-	from PyQt5.QtWidgets import  QMessageBox, QFileDialog
-else:
-	from PyQt4.QtCore import QTimer, QEventLoop
-	from PyQt4.QtGui import  QMessageBox, QFileDialog
-	
+from AnyQt.QtCore    import QTimer
+from AnyQt.QtWidgets import QFileDialog
 
 class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 
@@ -34,8 +30,8 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		self._zero_btn 		= ControlButton('Reset position')
 		self._start_reading = ControlButton('Start Reading')
 		self._reset_threshs = ControlButton('Reset thresholds')
-		self._thresh_lower 	= ControlNumber('Lower threshold (deg)', 0, -360, 360)
-		self._thresh_upper 	= ControlNumber('Upper threshold (deg)', 0, -360, 360)
+		self._thresh_lower 	= ControlNumber('Lower threshold (deg)', 0, minimum=-360, maximum=360)
+		self._thresh_upper 	= ControlNumber('Upper threshold (deg)', 0, minimum=-360, maximum=360)
 		self._graph 		= ControlMatplotlib('Value')
 		self._clear_btn 	= ControlButton('Clear')
 
@@ -106,7 +102,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 			self._csvwriter = csv.writer(
 				self._csvfile,
 				def_text='This file has all the rotary encoder data recorded during a PyBpod session.',
-				columns_headers=['EVT_TIME', 'VALUE']) # Check if we need something else after
+				columns_headers=['PC_TIME', 'DATA_TYPE','EVT_TIME', 'VALUE']) # Check if we need something else after
 		
 
 	def __start_reading_evt(self):
@@ -163,8 +159,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		Add new data to the reading history and update the graph
 		'''
 		for data in readings:
-			self.history_x.append(data[0])
-			self.history_y.append(data[1])
+			if data[0]=='P':
+				self.history_x.append(data[1])
+				self.history_y.append(data[2])
 		self._graph.draw()
 		
 	def __update_readings(self):
@@ -182,8 +179,9 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 		'''
 		Write new readings to the file
 		'''
+		now = datetime_now.now()
 		for data in readings:
-			self._csvwriter.writerow(data)
+			self._csvwriter.writerow([now.strftime('%Y%m%d%H%M%S')]+data)
 
 	def __zero_btn_evt(self): 
 		self.set_zero_position()
@@ -238,7 +236,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
 					self._stream_file.value   = False
 					self._stream_file.enabled = False
 			except  Exception as err:
-				QMessageBox.critical(self, "Error", str(err))
+				self.critical(str(err),  "Error")
 				self._connect_btn.checked = False
 
 

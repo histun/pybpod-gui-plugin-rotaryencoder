@@ -6,3 +6,11 @@ bpod_rotaryencoder_module/__pycache__/
 docs/build/html/
 
 docs/build/
+
+pybpod_rotaryencoder_module\.egg-info/
+
+build/
+
+dist/
+
+pybpod_gui_plugin_rotaryencoder\.egg-info/

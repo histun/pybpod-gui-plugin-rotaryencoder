@@ -9,7 +9,7 @@ sphinx_rtd_theme>=0.2.4
 recommonmark
 
 # swp dependencies
-git+https://github.com/UmSenhorQualquer/pysettings.git
+git+https://github.com/UmSenhorQualquer/pyforms.git
 https://bitbucket.org/fchampalimaud/logging-bootstrap/get/master.zip
 https://github.com/UmSenhorQualquer/pyforms/archive/master.zip
 https://bitbucket.org/fchampalimaud/pybpod-api/get/master.zip
