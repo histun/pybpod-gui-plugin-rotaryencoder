@@ -155,6 +155,7 @@ class RotaryEncoderModule(object):
     def set_prefix(self, prefix):
         """
         :ivar char prefix: One character to be used as prefix.
+
         Set 1-character prefix for module output stream.
         """
         self.arcom.write_array([self.COM_SETPREFIX, prefix])
