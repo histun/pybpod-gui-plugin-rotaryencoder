@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name='pybpod-gui-plugin-rotaryencoder',
-	version="0.1.1",
+	version="0.1.2",
 	description="""PyBpod rotary encoder module controller""",
 	author=['Ricardo Ribeiro', 'Luís Teixeira'],
 	author_email='ricardojvr@gmail.com, micboucinha@gmail.com',
