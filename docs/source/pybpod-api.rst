@@ -17,15 +17,14 @@ Usage example
 
 .. code:: python
 
-	
-	#...
+    #...
 
-	bpod = Bpod()
+    bpod = Bpod()
 
-	# get the module connected to the first bpod serial port.
-	rotary_encoder = bpod.modules[0]
+    # get the module connected to the first bpod serial port.
+    rotary_encoder = bpod.modules[0]
 
-	# call a function of the module
-	rotary_encoder.activate_outputstream()
+    # call a function of the module
+    rotary_encoder.activate_outputstream()
 
-	bpod.stop()
+    bpod.stop()
