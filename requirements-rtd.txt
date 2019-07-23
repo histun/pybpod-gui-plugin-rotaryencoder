@@ -9,7 +9,7 @@ sphinx_rtd_theme>=0.2.4
 recommonmark
 
 # swp dependencies
-pyforms-gui
+pyforms-gui==4.901.2
 pybpod-gui-plugin
 pybpod-api
 pybpod-gui-api
