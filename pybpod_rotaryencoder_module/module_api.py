@@ -19,10 +19,10 @@ class RotaryEncoderModule(object):
 
     def __init__(self, serialport=None):
         """
-        Constructer of the RotaryEncoderModule object
-        A a serial connection to the Rotary Encoder board is oppened at the construction of the object.
+        Constructor of the RotaryEncoderModule object
+        A serial connection to the Rotary Encoder board is opened at the construction of the object.
 
-        :ivar str serialport: PC serial port where the module is connect
+        :ivar str serialport: PC serial port where the module is connected
         """
         if serialport:
             self.open(serialport)
@@ -31,7 +31,7 @@ class RotaryEncoderModule(object):
         """
         Opens a serial connection to the Rotary Encoder board.
 
-        :ivar str serialport: PC serial port where the module is connect
+        :ivar str serialport: PC serial port where the module is connected
         """
         self.arcom = ArCOM().open(serialport, 115200)
         self.arcom.write_char(self.COM_HANDSHAKE)
@@ -52,33 +52,33 @@ class RotaryEncoderModule(object):
 
     def enable_evt_transmission(self):
         """
-        Enable the transmission of the events.
+        Enables the transmission of events.
         """
         self.arcom.write_array([self.COM_TOGGLEEVTTRANSM, 1])
         return self.arcom.read_uint8() == 1
 
     def disable_evt_transmission(self):
         """
-        Disable the transmission of the events.
+        Disables the transmission of events.
         """
         self.arcom.write_array([self.COM_TOGGLEEVTTRANSM, 0])
         return self.arcom.read_uint8() == 1
 
     def enable_stream(self):
         """
-        Enable the streaming of the position and the time measurements to the USB port.
+        Enables the streaming of the position and the time measurements to the USB port.
         """
         self.arcom.write_array([self.COM_TOGGLESTREAM, 1])
 
     def disable_stream(self):
         """
-        Disable the streaming of the position and the time measurements to the USB port.
+        Disables the streaming of the position and the time measurements to the USB port.
         """
         self.arcom.write_array([self.COM_TOGGLESTREAM, 0])
 
     def read_stream(self):
         """
-        Read the data being streamed through the USB port.
+        Reads the data being streamed through the USB port.
         """
         res = []
         available = self.arcom.bytes_available()
@@ -104,7 +104,7 @@ class RotaryEncoderModule(object):
 
     def current_position(self):
         """
-        Retrieve the current position.
+        Retrieves the current position.
         """
         self.arcom.write_array([self.COM_GETCURRENTPOS])
         data_in_bytes = b''.join(self.arcom.read_bytes_array(2))
@@ -113,13 +113,13 @@ class RotaryEncoderModule(object):
 
     def set_zero_position(self):
         """
-        Set current rotary encoder position to zero.
+        Sets current rotary encoder position to zero.
         """
         self.arcom.write_array([self.COM_SETZEROPOS])
 
     def set_position(self, degrees):
         """
-        Set the current position in degrees.
+        Sets the current position in degrees.
 
         :ivar int degrees: current position in degrees.
         """
@@ -132,7 +132,7 @@ class RotaryEncoderModule(object):
 
     def enable_thresholds(self, thresholds):
         """
-        Enable the thresholds.
+        Enables the thresholds.
 
         :ivar list(boolean) thresholds: list of 6 booleans indicating which thresholds are active to trigger events.
         """
@@ -145,19 +145,19 @@ class RotaryEncoderModule(object):
 
     def enable_logging(self):
         """
-        Enable the logging to the SD Card.
+        Enables the logging to the SD Card.
         """
         self.arcom.write_array([self.COM_STARTLOGGING])
 
     def disable_logging(self):
         """
-        Disable the logging to the SD Card.
+        Disables the logging to the SD Card.
         """
         self.arcom.write_array([self.COM_STOPLOGGING])
 
     def get_logged_data(self):
         """
-        Retreave the logged data in the SD Card.
+        Retrieves the logged data in the SD Card.
         """
         self.arcom.write_array([self.COM_GETLOGDATA])
         msg = self.arcom.read_bytes_array(4)
@@ -177,16 +177,16 @@ class RotaryEncoderModule(object):
 
     def set_prefix(self, prefix):
         """
-        :ivar char prefix: One character to be used as prefix.
+        Sets 1-character prefix for module output stream.
 
-        Set 1-character prefix for module output stream.
+        :ivar char prefix: One character to be used as prefix.
         """
         self.arcom.write_array([self.COM_SETPREFIX, prefix])
         return self.arcom.read_uint8() == 1
 
     def set_thresholds(self, thresholds):
         """
-        Set the thresholds values to trigger the events.
+        Sets the thresholds values to trigger the events.
 
         :ivar list(int) thresholds: List, in maximum, of 6 thresholds to trigger events.
         """
@@ -197,7 +197,7 @@ class RotaryEncoderModule(object):
 
     def set_wrappoint(self, wrap_point):
         """
-        Set wrap point (number of tics in a half-rotation)
+        Sets wrap point (number of tics in a half-rotation)
 
         :ivar int wrap_point: number of tics in a half-rotation.
         """
