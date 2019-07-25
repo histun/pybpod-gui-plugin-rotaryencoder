@@ -5,6 +5,7 @@ class RotaryEncoderModule(object):
 
     COM_HANDSHAKE        = 'C'
     COM_TOGGLEEVTTRANSM  = ord('V')
+    COM_TOGGLEOUTPUTSTREAM = ord('O')
     COM_TOGGLESTREAM     = ord('S')
     COM_STARTLOGGING     = ord('L')
     COM_STOPLOGGING      = ord('F')
@@ -52,7 +53,7 @@ class RotaryEncoderModule(object):
 
     def enable_evt_transmission(self):
         """
-        Enables the transmission of events.
+        Enables the transmission of threshold crossing events to the Bpod state machine.
         """
         self.arcom.write_array([self.COM_TOGGLEEVTTRANSM, 1])
         return self.arcom.read_uint8() == 1
@@ -62,6 +63,20 @@ class RotaryEncoderModule(object):
         Disables the transmission of events.
         """
         self.arcom.write_array([self.COM_TOGGLEEVTTRANSM, 0])
+        return self.arcom.read_uint8() == 1
+
+    def enable_module_outputstream(self):
+        """
+        Enables the streaming of current position data directly to another Bpod module (e.g. DDS, AnalogOutput).
+        """
+        self.arcom.write_array([self.COM_TOGGLEOUTPUTSTREAM, 1])
+        return self.arcom.read_uint8() == 1
+
+    def disable_module_outputstream(self):
+        """
+        Disables the streaming of current position data directly to another Bpod module.
+        """
+        self.arcom.write_array([self.COM_TOGGLEOUTPUTSTREAM, 0])
         return self.arcom.read_uint8() == 1
 
     def enable_stream(self):
