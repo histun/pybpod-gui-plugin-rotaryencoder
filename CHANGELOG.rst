@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.1.4 (2019-11-07)
+------------------
+* Add support for enabling/disabling moduleOutputStream in the GUI
+
 0.1.3 (2019-07-23)
 ------------------
 * Minor documentation fixes

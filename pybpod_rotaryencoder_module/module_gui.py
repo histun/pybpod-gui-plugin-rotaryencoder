@@ -33,6 +33,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
         self._saveas_btn    = ControlButton('Save As...')
 
         self._events 		= ControlCheckBox('Enable events')
+        self._output_stream	= ControlCheckBox('Output stream')
         self._stream 		= ControlCheckBox('Stream data')
         self._stream_file   = ControlCheckBox('Stream to file')
         self._zero_btn 		= ControlButton('Reset position')
@@ -48,7 +49,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
         self.formset = [
             ('_port', '_refresh_serial_ports', '_connect_btn'),
             ('_filename', '_saveas_btn'),
-            ('_events', '_stream', '_stream_file', '_zero_btn'),
+            ('_events', '_output_stream', '_stream', '_stream_file', '_zero_btn'),
             '_start_reading',
             ('_thresh_lower', '_thresh_upper', '_reset_threshs'),
             '=',
@@ -59,6 +60,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
         self._stream.enabled = False
         self._stream_file.enabled = False
         self._events.enabled = False
+        self._output_stream.enabled = False
         self._zero_btn.enabled = False
         self._reset_threshs.enabled = False
         self._thresh_lower.enabled = False
@@ -69,6 +71,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
         self._saveas_btn.value = self.__prompt_savig_evt
         self._stream_file.changed_event = self.__stream_file_changed_evt
         self._events.changed_event = self.__events_changed_evt
+        self._output_stream.changed_event = self.__output_stream_changed_evt
         self._thresh_upper.changed_event = self.__thresh_evt
         self._thresh_lower.changed_event = self.__thresh_evt
         self._reset_threshs.value = self.__reset_thresholds_evt
@@ -211,6 +214,12 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
         else:
             self.disable_evt_transmission()
 
+    def __output_stream_changed_evt(self):
+        if self._stream.value:
+            self.enable_module_outputstream()
+        else:
+            self.disable_module_outputstream()
+
     def __toggle_connection_evt(self):
         if not self._connect_btn.checked:
             if hasattr(self, 'arcom'):
@@ -220,6 +229,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
             self._connect_btn.label = 'Connect'
             self._stream.enabled = False
             self._events.enabled = False
+            self._output_stream.enabled = False
             self._zero_btn.enabled = False
             self._reset_threshs.enabled = False
             self._thresh_lower.enabled = False
@@ -236,6 +246,7 @@ class RotaryEncoderModuleGUI(RotaryEncoderModule, BaseWidget):
                 self._connect_btn.label = 'Disconnect'
                 self._stream.enabled = True
                 self._events.enabled = True
+                self._output_stream.enabled = True
                 self._zero_btn.enabled = True
                 self._reset_threshs.enabled = True
                 self._thresh_lower.enabled = True
