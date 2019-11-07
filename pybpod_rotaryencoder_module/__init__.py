@@ -1,7 +1,7 @@
-__version__ 	= "0.1.2"
+__version__ 	= "0.1.4"
 __author__ 		= ['Ricardo Ribeiro']
 __credits__ 	= ["Ricardo Ribeiro"]
-__license__ 	= "Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>"
+__license__ 	= "MIT"
 __maintainer__ 	= ['Ricardo Ribeiro']
 __email__ 		= ['ricardojvr@gmail.com']
 __status__ 		= "Development"

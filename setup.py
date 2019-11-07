@@ -6,12 +6,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='pybpod-gui-plugin-rotaryencoder',
-    version="0.1.3",
+    version="0.1.4",
     description="""PyBpod rotary encoder module controller""",
     author=['Ricardo Ribeiro', 'Luís Teixeira'],
     author_email='ricardojvr@gmail.com, micboucinha@gmail.com',
-    license='Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>',
-    url='https://bitbucket.org/fchampalimaud/rotary-encoder-module',
+    license='MIT',
+    url='https://github.com/pybpod/pybpod-gui-plugin-rotaryencoder',
 
     include_package_data=True,
     packages=find_packages(),
